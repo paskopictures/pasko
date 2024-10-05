@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Configuratore di Quadri</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+            margin: 0; /* Rimuove margini di default */
+            padding: 0; /* Rimuove padding di default */
+        }
+		
+        .container {
+		    min-width: 80vw; /* Limita la larghezza minnima */
+            max-width: 90vw; /* Limita la larghezza massima */
+            margin: 0 auto; /* Centra il contenitore */
+        }
+		
+        h1, h2 {
+            text-align: center; /* Centra i titoli */
+			text-transform: uppercase;
+			margin-top: 1vh;
+        }
+		
+        #preview {
+            text-align: center;
+            margin: 5vh;
+        }
+		
+        .total-price-box {
+            margin: 2vh auto;
+            padding: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 12px;
+            background-color: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+            display: inline-block;
+			color: black;
+        }
+		
+        .options-container {
+            overflow: visible; /* Permette alle box ingrandite di essere visibili */
+        }
+		
+        .options {
+            display: flex;
+            flex-wrap: wrap; /* Permette alle box di andare a capo se necessario */
+            margin-bottom: 5vh;
+            justify-content: center; /* Centra le box */
+        }
+		
+        .box {
+            position: relative; /* Necessario per posizionare elementi interni */
+            flex: 0 0 auto;
+            margin: 15px; /* Spazio attorno alle box */
+            text-align: center;
+            border: 0px solid black; /* Contorno nero */
+            border-radius: 12px; /* Angoli smussati */
+            padding: 10px; /* Spazio interno */
+            width: 170px; /* Larghezza fissa per le box */
+            height: 240px; /* Altezza fissa per le box */
+            transition: transform 0.2s, border-color 0.2s, border-width 0.2s; /* Transizioni per effetti */
+            background: rgba(255, 255, 255, 0.2); /* Sfondo leggermente trasparente */
+            backdrop-filter: blur(5px); /* Effetto blur per l'effetto "glass" */
+            box-shadow: 0 4px 4px rgba(0, 0, 0, 0.2); /* Leggera ombra */
+            cursor: pointer; /* Cambia il cursore al passaggio */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+		
+        .box img {
+            width: 95%; /* L'immagine riempie la larghezza della box */
+            height: auto;
+            border-radius: 12px; /* Angoli smussati */
+        }
+		
+        .price {
+            font-weight: bold;
+			color: purple;
+            margin-top: auto; /* Spinge il prezzo verso il basso */
+            margin-bottom: auto; /* Aggiunge spazio dal bordo inferiore */
+        }
+		
+        /* Effetto hover */
+        .box:hover {
+            border-color: purple;
+            transform: scale(1.02); /* Ingrandisce la box del 3% */
+        }
+		
+        /* Stato selezionato */
+        .box.selected {
+            border-color: purple;
+            border-width: 2px; /* Aumenta lo spessore del bordo */
+            transform: scale(1.05); /* Ingrandisce la box del 5% */
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.1)); /* Effetto "glass" */
+            backdrop-filter: blur(10px); /* Maggiore blur per l'effetto selezionato */
+        }
+		
+        /* Pulsante stile */
+        .styled-button {
+            padding: 10px 20px;
+            font-size: 18px;
+            border-radius: 12px;
+            background-color: purple;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin: auto;
+        }
+        .styled-button:hover {
+            background-color: black;
+        }
+		
+		#request-button{
+		margin-bottom:18vh;
+		}
+
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Sfondo semi-trasparente */
+            display: none; /* Nascosto di default */
+        }
+        .popup-content {
+            background-color: rgba(255, 255, 255, 1);
+            border-radius: 12px;
+            padding: 25px;
+            width: 300px;
+            margin: 25vh auto;
+            position: relative;
+        }
+        .popup-content h2 {
+            margin-top: 0;
+        }
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .popup-content label {
+            display: block;
+            text-align: left;
+            margin-bottom: 5px;
+        }
+        .popup-content input {
+            width: 94%;
+            padding: 5px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+        /* Colore di sfondo del testo selezionato */
+        ::selection {
+            background-color: purple;
+            color: white; /* Cambia il colore del testo durante la selezione */
+        }
+    </style>
+</head>
+<body>
+   <div class="container">
+        <h1>Configura il tuo quadro!</h1>
+        <div id="preview">
+            <!-- L'anteprima verrà generata dinamicamente -->
+        </div>
+		
+        <h2>BEZEL | CORNICE</h2>
+        <div class="options-container">
+            <div class="options" id="frame-options">
+                <!-- Opzioni delle cornici -->
+            </div>
+        </div>
+
+        <h2>CONTENT | IMMAGINE</h2>
+        <div class="options-container">
+            <div class="options" id="img-options">
+                <!-- Opzioni delle immagini -->
+            </div>
+        </div>
+
+        <h2>STAND | SUPPORTO</h2>
+        <div class="options-container">
+            <div class="options" id="stand-options">
+                <!-- Opzioni dello stand -->
+            </div>
+        </div>
+
+        <!-- Casella del prezzo totale -->
+        <div id="total-price" class="total-price-box"></div>
+
+        <!-- Pulsante per richiedere il quadro -->
+        <button id="request-button" class="styled-button">Request Picture</button>
+    </div>
+
+    <!-- Popup per la richiesta del quadro -->
+    <div id="popup" class="popup-overlay">
+        <div class="popup-content">
+            <span id="close-popup" class="close-button">&times;</span>
+            <h2>Check Out</h2>
+			<p>Fill out the form to receive the link to the Vinted ad created especially for you!</p>
+			
+            <form id="request-form">
+                <label for="nome">Name:</label>
+                <input type="text" id="nome" name="nome" required><br>
+                <label for="cognome">Surname:</label>
+                <input type="text" id="cognome" name="cognome" required><br>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required><br>
+                <button type="submit" class="styled-button">GET IT</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Dati delle immagini
+        const imgs = [
+            {src: 'https://lh3.googleusercontent.com/d/1GtRHkAKjy2ck_SHDlw0XCJWTSZi-AP2l', prezzo: 9.90},
+            {src: 'https://lh3.googleusercontent.com/d/1X9e4k-klCj2NFMdxrky4iYIkhCluBT51', prezzo: 9.90},
+            {src: 'https://lh3.googleusercontent.com/d/19e63n5sRYplR0JsNfOPDI29Wg8Uv3SsC', prezzo: 9.90},
+            {src: 'https://lh3.googleusercontent.com/d/1KWmDoX780SIb1KttwkkpUaL4Hj_PZg1y', prezzo: 9.90},
+            {src: 'https://lh3.googleusercontent.com/d/1sgS6z-ySTSnFlMdok7MmB3aaqn7m-z7c', prezzo: 9.90},
+            {src: 'https://lh3.googleusercontent.com/d/1FeOzakmChXuDoEEkrP_7XVQfRhjuOd1j', prezzo: 9.90},
+            {src: 'https://lh3.googleusercontent.com/d/1ot-SOB_9cHLWXYxg6Bkku-WiQZ_oBE3C', prezzo: 9.90},
+            {src: 'https://lh3.googleusercontent.com/d/1Lz8dLFsVj4wrbKS5eu4-lT7VnLwGA5IM', prezzo: 9.90},
+            {src: 'https://lh3.googleusercontent.com/d/1UlKE7tq1IEh1lZeKWvpF3Mu7ypxAI_Po', prezzo: 9.90},
+            {src: 'https://lh3.googleusercontent.com/d/1Q7_1LECm9fCleo6xZgGI87ueND_cwtJl', prezzo: 9.90}
+        ];
+
+        // Dati delle cornici
+        const frames = [
+		    {src: 'https://lh3.googleusercontent.com/d/1q7hnJWdv4fJRb_C43c_m87qjUaHv2FtX', prezzo: 2.90},
+            {src: 'https://lh3.googleusercontent.com/d/1Pc1UqkiK4ctZ7M5mcVCqFaQlGbHY5qdl', prezzo: 0},
+            {src: 'https://lh3.googleusercontent.com/d/1yZQL65xneOn8zLAm7pUEzEumPYm9IPGJ', prezzo: 0}
+        ];
+
+        // Dati dello stand
+        const stands = [
+            {src: 'https://lh3.googleusercontent.com/d/1XK6MTH8iE4HQWEiH0iYOtYVH8M_m6dWT', prezzo: 0, label: 'Senza Stand'},
+            {src: 'https://lh3.googleusercontent.com/d/1PBcbiItL-Fye_pNDG0xFH-gkfF7WbLaH', prezzo: 1.50, label: 'Con Stand'}
+        ];
+
+        // Opzioni selezionate inizialmente
+        let selImg = imgs[0];
+        let selFrame = frames[0];
+        let selStand = stands[0];
+
+        /**
+         * Popola le opzioni all'interno del container specificato.
+         * @param {string} contId - ID del container dove inserire le opzioni.
+         * @param {Array} opts - Array di opzioni da visualizzare.
+         * @param {Object} selOpt - Opzione attualmente selezionata.
+         * @param {Function} callback - Funzione da chiamare al click su un'opzione.
+         */
+        function popolaOpzioni(contId, opts, selOpt, callback) {
+            const cont = document.getElementById(contId);
+            cont.innerHTML = ''; // Pulisce il contenitore
+            opts.forEach((opt, idx) => {
+                const div = document.createElement('div');
+                div.className = 'box';
+                if (opt === selOpt) {
+                    div.classList.add('selected');
+                }
+
+                // Evento click sulla box intera
+                div.addEventListener('click', () => {
+                    // Rimuove la classe 'selected' da tutte le box nel container
+                    const boxes = cont.querySelectorAll('.box');
+                    boxes.forEach(box => box.classList.remove('selected'));
+                    // Aggiunge la classe 'selected' alla box cliccata
+                    div.classList.add('selected');
+                    // Aggiorna l'opzione selezionata
+                    callback(opt);
+                    aggiornaPrezzo(); // Aggiorna il prezzo totale
+                });
+
+                const img = document.createElement('img');
+                img.src = opt.src;
+                img.alt = opt.label || 'Opzione ' + (idx + 1);
+
+                const p = document.createElement('p');
+                p.className = 'price';
+                p.textContent = '€' + opt.prezzo.toFixed(2);
+
+                div.appendChild(img);
+                div.appendChild(p);
+                cont.appendChild(div);
+            });
+        }
+
+        /**
+         * Aggiorna l'anteprima combinando l'immagine, la cornice e lo stand selezionati.
+         */
+        function aggiornaAnteprima() {
+            const prevCont = document.getElementById('preview');
+            prevCont.innerHTML = ''; // Pulisce il contenuto precedente
+
+            // Crea il contenitore per l'anteprima
+            const prevDiv = document.createElement('div');
+            prevDiv.style.position = 'relative';
+            prevDiv.style.margin = '0 3';
+            prevDiv.style.display = 'inline-block';
+            prevDiv.style.height = '40vh'; // Imposta l'altezza a 40% altezza
+
+            // Immagine principale
+            const imgElem = document.createElement('img');
+            imgElem.src = selImg.src;
+            imgElem.style.width = '100%';
+            imgElem.style.height = '100%';
+            imgElem.style.objectFit = 'contain';
+
+            // Cornice
+            const frameElem = document.createElement('img');
+            frameElem.src = selFrame.src;
+            frameElem.style.width = '45vh';
+            frameElem.style.height = '45vh';
+            frameElem.style.objectFit = 'contain';
+            frameElem.style.position = 'absolute';
+            frameElem.style.top = '-3vh';
+            frameElem.style.left = '-8vh';
+
+            // Aggiunge gli elementi al contenitore dell'anteprima
+            prevDiv.appendChild(imgElem);
+            prevDiv.appendChild(frameElem);
+            prevCont.appendChild(prevDiv);
+
+            // Aggiorna il prezzo totale
+            aggiornaPrezzo();
+        }
+
+        /**
+         * Aggiorna il prezzo totale in base alle opzioni selezionate.
+         */
+        function aggiornaPrezzo() {
+            const totalPrice = selImg.prezzo + selFrame.prezzo + selStand.prezzo;
+            const totalPriceBox = document.getElementById('total-price');
+            totalPriceBox.textContent = 'Total Price: €' + totalPrice.toFixed(2);
+        }
+
+        // Popola le opzioni e imposta le opzioni predefinite selezionate
+        popolaOpzioni('img-options', imgs, selImg, (opt) => {
+            selImg = opt;
+            aggiornaAnteprima();
+        });
+
+        popolaOpzioni('frame-options', frames, selFrame, (opt) => {
+            selFrame = opt;
+            aggiornaAnteprima();
+        });
+
+        popolaOpzioni('stand-options', stands, selStand, (opt) => {
+            selStand = opt;
+            aggiornaAnteprima();
+        });
+
+        // Anteprima iniziale
+        aggiornaAnteprima();
+
+        // Gestione del popup
+        const requestButton = document.getElementById('request-button');
+        const popup = document.getElementById('popup');
+        const closeButton = document.getElementById('close-popup');
+        const requestForm = document.getElementById('request-form');
+
+        requestButton.addEventListener('click', () => {
+            popup.style.display = 'block';
+        });
+
+        closeButton.addEventListener('click', () => {
+            popup.style.display = 'none';
+        });
+
+        // Gestione della sottomissione del form
+        requestForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Qui puoi aggiungere la logica per inviare i dati del form
+            popup.style.display = 'none';
+            alert('Richiesta inviata con successo!');
+        });
+    </script>
+</body>
+</html>
