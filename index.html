@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Configuratore di Quadri</title>
@@ -13,9 +13,10 @@
         }
 		
         .container {
-		    min-width: 80vw; /* Limita la larghezza minnima */
+		    min-width: 80vw; /* Limita la larghezza minima */
             max-width: 90vw; /* Limita la larghezza massima */
             margin: 0 auto; /* Centra il contenitore */
+            margin-top: 5%;
         }
 		
         h1, h2 {
@@ -299,43 +300,46 @@
         /**
          * Aggiorna l'anteprima combinando l'immagine, la cornice e lo stand selezionati.
          */
-        function aggiornaAnteprima() {
-            const prevCont = document.getElementById('preview');
-            prevCont.innerHTML = ''; // Pulisce il contenuto precedente
+function aggiornaAnteprima() {
+    const prevCont = document.getElementById('preview');
+    prevCont.innerHTML = ''; // Pulisce il contenuto precedente
 
-            // Crea il contenitore per l'anteprima
-            const prevDiv = document.createElement('div');
-            prevDiv.style.position = 'relative';
-            prevDiv.style.margin = '0 3';
-            prevDiv.style.display = 'inline-block';
-            prevDiv.style.height = '40vh'; // Imposta l'altezza a 40% altezza
+    // Crea il contenitore per l'anteprima
+    const prevDiv = document.createElement('div');
+    prevDiv.style.position = 'relative';
+    prevDiv.style.margin = '0 auto';
+    prevDiv.style.width = '90vw';  // Imposta larghezza responsiva (90% viewport width)
+    prevDiv.style.height = '40vh'; // Imposta altezza responsiva (40% viewport height)
+    prevDiv.style.maxWidth = '600px'; // Limita la larghezza massima
+    prevDiv.style.maxHeight = '500px'; // Limita l'altezza massima
 
-            // Immagine principale
-            const imgElem = document.createElement('img');
-            imgElem.src = selImg.src;
-            imgElem.style.width = '100%';
-            imgElem.style.height = '100%';
-            imgElem.style.objectFit = 'contain';
+    // Immagine principale
+    const imgElem = document.createElement('img');
+    imgElem.src = selImg.src;
+    imgElem.style.width = '100%';
+    imgElem.style.height = '90%';
+    imgElem.style.objectFit = 'contain';
+    imgElem.style.position = 'relative';  // Immagine principale rimane nel flusso del documento
 
-            // Cornice
-            const frameElem = document.createElement('img');
-            frameElem.src = selFrame.src;
-            frameElem.style.width = '45vh';
-            frameElem.style.height = '45vh';
-            frameElem.style.objectFit = 'contain';
-            frameElem.style.position = 'absolute';
-            frameElem.style.top = '-3vh';
-            frameElem.style.left = '-8vh';
+    // Cornice (sovrapposta)
+    const frameElem = document.createElement('img');
+    frameElem.src = selFrame.src;
+    frameElem.style.width = '30vh';
+    frameElem.style.height = '100%';
+    frameElem.style.position = 'absolute'; // Posiziona la cornice sopra l'immagine
+    frameElem.style.top = '50%';
+    frameElem.style.left = '50%';
+    frameElem.style.transform = 'translate(-50%, -55%)'; // Centra la cornice rispetto all'immagine
+    frameElem.style.pointerEvents = 'none';  // Assicura che la cornice non interferisca con l'interazione
 
-            // Aggiunge gli elementi al contenitore dell'anteprima
-            prevDiv.appendChild(imgElem);
-            prevDiv.appendChild(frameElem);
-            prevCont.appendChild(prevDiv);
+    // Aggiunge gli elementi al contenitore dell'anteprima
+    prevDiv.appendChild(imgElem);
+    prevDiv.appendChild(frameElem);
+    prevCont.appendChild(prevDiv);
 
-            // Aggiorna il prezzo totale
-            aggiornaPrezzo();
-        }
-
+    // Aggiorna il prezzo totale
+    aggiornaPrezzo();
+}
         /**
          * Aggiorna il prezzo totale in base alle opzioni selezionate.
          */
